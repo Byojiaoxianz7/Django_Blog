@@ -1,5 +1,13 @@
 # Django Blog
 
-[看到11集了](https://www.bilibili.com/video/av18212698/?spm_id_from=333.788.videocard.0)
+2019年7月17日
 
-bootstrap
+基本博客框架搭建完毕，后续慢慢完善
+
+（ps:还挺好看）
+
+
+![](博客页面.jpg)
+
+
+![](文章页面.jpg)

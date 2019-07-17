@@ -1,9 +1,12 @@
 from django.shortcuts import render_to_response, get_object_or_404
-from .models import Blog,BlogType
+from .models import Blog
+from .models import BlogType
+
 
 def blog_list(request):
     context = {}
     context['blogs'] = Blog.objects.all()
+    context['blog_types'] = BlogType.objects.all()
     return render_to_response('blog/blog_list.html', context)
 
 
@@ -18,4 +21,5 @@ def blogs_with_type(request, blogs_with_type):
     blog_type = get_object_or_404(BlogType, pk=blogs_with_type)
     context['blogs'] = Blog.objects.filter(blog_type=blog_type)
     context['blog_type'] = blog_type
+    context['blog_types'] = BlogType.objects.all()
     return render_to_response('blog/blogs_with_type.html', context)

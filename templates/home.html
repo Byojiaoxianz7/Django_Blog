@@ -1,10 +1,18 @@
 {% extends 'base.html' %}
+{% load staticfiles %}
 
 {% block title %}
     我的网站
 {% endblock %}
 
+{% block nav_home_active %}active{% endblock %}
+
+{% block header_extends %}
+    <link rel="stylesheet" href="{% static 'home.css' %}">
+{% endblock %}
+
+
 
 {% block content %}
-    <h3>欢迎访问我的网站</h3>
+    <h3 class="home-content">欢迎访问我的网站</h3>
 {% endblock %}
