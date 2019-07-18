@@ -24,7 +24,7 @@ ul.bolg-info-description {
 
 ul.bolg-info-description li {
     display: inline-block;
-    margin-right: 2em;
+    margin-right: 1em;
 }
 
 
@@ -34,4 +34,8 @@ div.blog-content {
 
 div.paginator {
     text-align: center;
+}
+
+div.blog-more {
+    margin-top: 2em;
 }
