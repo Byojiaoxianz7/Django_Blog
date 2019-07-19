@@ -38,6 +38,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'blog',
+    'read_statistics',
     ]
 
 MIDDLEWARE = [
@@ -127,3 +128,12 @@ STATICFILES_DIRS = [
 
 # 自定义参数
 EACH_PAGE_BLOGS_NUMBER = 5
+
+
+# 缓存设置
+CACHES = {
+    'default': {
+        'BACKEND': 'django.core.cache.backends.db.DatabaseCache',
+        'LOCATION': 'my_cache_table',
+    }
+}

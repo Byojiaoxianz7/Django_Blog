@@ -2,17 +2,90 @@
 {% load staticfiles %}
 
 {% block title %}
-    我的网站
+    Byojiaoxianz7's Blog
 {% endblock %}
 
 {% block nav_home_active %}active{% endblock %}
 
 {% block header_extends %}
     <link rel="stylesheet" href="{% static 'home.css' %}">
+    <script src="https://code.highcharts.com/highcharts.js"></script>
 {% endblock %}
 
 
-
 {% block content %}
-    <h3 class="home-content">欢迎访问我的网站</h3>
+    <h3 class="home-content">来啦老弟！</h3>
+    <!-- 图标容器 DOM    -->
+    <div id="container"></div>
+    <div class="hot-data">
+    <!-- 今天24小时内的热门博客 -->
+    <h3>今日热门博客</h3>
+    <ul>
+        {% for hot_data in today_hot_data %}
+            <li><a href="{% url 'blog_detail' hot_data.content_object.pk %}">{{ hot_data.content_object.title }}({{ hot_data.read_num }})</a></li>
+        {% empty %}
+            <li>今天暂时没有热门博客</li>
+        {% endfor %}
+    </ul>
+    </div>
+
+    <div class="hot-data">
+    <!-- 今天24小时内的热门博客 -->
+    <h3>昨日热门博客</h3>
+    <ul>
+        {% for hot_data in get_yesterday_hot_data %}
+            <li><a href="{% url 'blog_detail' hot_data.content_object.pk %}">{{ hot_data.content_object.title }}({{ hot_data.read_num }})</a></li>
+        {% empty %}
+            <li>昨日暂时没有热门博客</li>
+        {% endfor %}
+    </ul>
+    </div>
+    <div class="hot-data">
+    <!-- 7天热门博客 -->
+    <h3>7天热门博客</h3>
+    <ul>
+        {% for hot_blog in hot_blogs_for_7_days %}
+            <li><a href="{% url 'blog_detail' hot_blog.id %}">{{ hot_blog.title }} ({{ hot_blog.read_num_sum }})</a></li>
+        {% empty %}
+            <li>暂时没有7天热门博客</li>
+        {% endfor %}
+    </ul>
+    </div>
+
+    <script>
+        // 图表配置
+        var options = {
+            chart: { type: 'line' },
+            title: { text: null },
+            xAxis: {
+                categories: {{ dates|safe }},
+                tickmarkPlacement: 'on',
+                title: { text: '前7日阅读量变化'},
+
+            },
+
+            yAxis: {
+                title: { text: null },
+                labels: { enabled: false },
+                gridLineDashStyle: 'Dash',
+            },
+
+            series: [{                              // 数据列
+                name: '阅读量',                        // 数据列名
+                data: {{ read_nums }}                  // 数据
+            }],
+            plotOptions: {
+                line: {
+                    dataLabels: {
+                        enabled: true
+                    }
+                }
+            },
+            length: { enabled: false },
+            credits: { enabled: false },
+        };
+        // 图表初始化函数
+        var chart = Highcharts.chart('container', options);
+    </script>
+
 {% endblock %}

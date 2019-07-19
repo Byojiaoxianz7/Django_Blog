@@ -3,8 +3,9 @@ from django.shortcuts import render_to_response, get_object_or_404
 from django.core.paginator import Paginator
 from django.conf import settings
 from .models import Blog
-from .models import BlogType, ReadNum
+from .models import BlogType
 import markdown
+from read_statistics.utils import read_statistics_once_read
 
 
 def get_blog_list_common_data(request, blogs_all_list):
@@ -63,17 +64,14 @@ def blog_detail(request, blog_pk):  # pk -> primary key
     context = {}
     blog = get_object_or_404(Blog, pk=blog_pk)
 
-    if not request.COOKIES.get('blog_%s_readed' % blog_pk):
-        if ReadNum.objects.filter(blog=blog).count():
-            # 存在记录
-            readnum = ReadNum.objects.get(blog=blog)
-        else:
-            # 不存在对应的记录
-            readnum = ReadNum(blog=blog)
+    # 当前博客
+    context['blog'] = blog
+    # 当前博客的上一条博客
+    context['previous_blog'] = Blog.objects.filter(created_time__gt=blog.created_time).last()
+    # 当前博客的下一条博客
+    context['next_blog'] = Blog.objects.filter(created_time__lt=blog.created_time).first()
 
-        # 计数加一
-        readnum.read_num += 1
-        readnum.save()
+    read_cookie_key = read_statistics_once_read(request, blog)
 
     blog.content = markdown.markdown(
         blog.content,
@@ -83,14 +81,7 @@ def blog_detail(request, blog_pk):  # pk -> primary key
             'markdown.extensions.toc',
         ])
 
-    # 当前博客
-    context['blog'] = blog
-    # 当前博客的上一条博客
-    context['previous_blog'] = Blog.objects.filter(created_time__gt=blog.created_time).last()
-    # 当前博客的下一条博客
-    context['next_blog'] = Blog.objects.filter(created_time__lt=blog.created_time).first()
-
     response = render_to_response('blog/blog_detail.html', context={'blog': blog})
-    response.set_cookie('blog_%s_readed' % blog_pk, 'true')
+    response.set_cookie(read_cookie_key, 'true') # 阅读 cookie 标记
 
     return response
