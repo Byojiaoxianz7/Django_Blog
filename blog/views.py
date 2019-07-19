@@ -1,12 +1,13 @@
 from django.db.models import Count
-from django.shortcuts import render_to_response, get_object_or_404
+from django.shortcuts import get_object_or_404, render
 from django.core.paginator import Paginator
 from django.conf import settings
 from .models import Blog
 from .models import BlogType
 import markdown
+from django.contrib.contenttypes.models import ContentType
 from read_statistics.utils import read_statistics_once_read
-
+from comment.models import Comment
 
 def get_blog_list_common_data(request, blogs_all_list):
     paginator = Paginator(blogs_all_list, settings.EACH_PAGE_BLOGS_NUMBER)
@@ -41,7 +42,7 @@ def get_blog_list_common_data(request, blogs_all_list):
 def blog_list(request):
     blogs_all_list = Blog.objects.all()
     context = get_blog_list_common_data(request, blogs_all_list)
-    return render_to_response('blog/blog_list.html', context)
+    return render(request, 'blog/blog_list.html', context)
 
 
 def blogs_with_type(request, blogs_with_type):
@@ -49,20 +50,21 @@ def blogs_with_type(request, blogs_with_type):
     blogs_all_list = Blog.objects.filter(blog_type=blog_type)
     context = get_blog_list_common_data(request, blogs_all_list)
     context['blog_type'] = blog_type
-    return render_to_response('blog/blogs_with_type.html', context)
+    return render(request, 'blog/blogs_with_type.html', context)
 
 
 def blogs_with_date(request, year, month):
     blogs_all_list = Blog.objects.filter(created_time__year=year, created_time__month=month)
     context = get_blog_list_common_data(request, blogs_all_list)
     context['blogs_with_date'] = '%s年%s月' % (year, month)
-    return render_to_response('blog/blogs_with_date.html', context)
+    return render(request, 'blog/blogs_with_date.html', context)
 
 
 def blog_detail(request, blog_pk):  # pk -> primary key
 
     context = {}
     blog = get_object_or_404(Blog, pk=blog_pk)
+    blog_content_type = ContentType.objects.get_for_model(blog)
 
     # 当前博客
     context['blog'] = blog
@@ -71,15 +73,10 @@ def blog_detail(request, blog_pk):  # pk -> primary key
     # 当前博客的下一条博客
     context['next_blog'] = Blog.objects.filter(created_time__lt=blog.created_time).first()
     # 获取用户 username
-    context['user'] = request.user
-
-    read_cookie_key = read_statistics_once_read(request, blog)
-
-
-    response = render_to_response('blog/blog_detail.html', context={'blog': blog})
-    response.set_cookie(read_cookie_key, 'true') # 阅读 cookie 标记
-
-
+    context['username'] = request.user
+    # 获取用户评论  （前端显示不出来）
+    comments = Comment.objects.filter(content_type=blog_content_type, object_id=blog_pk)
+    context['comments'] = comments
     # 使用 markdown
     blog.content = markdown.markdown(
         blog.content,
@@ -88,5 +85,10 @@ def blog_detail(request, blog_pk):  # pk -> primary key
             'markdown.extensions.codehilite',
             'markdown.extensions.toc',
         ])
+
+    read_cookie_key = read_statistics_once_read(request, blog)
+
+    response = render(request, 'blog/blog_detail.html', context={'blog': blog})
+    response.set_cookie(read_cookie_key, 'true') # 阅读 cookie 标记
 
     return response
