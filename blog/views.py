@@ -70,9 +70,17 @@ def blog_detail(request, blog_pk):  # pk -> primary key
     context['previous_blog'] = Blog.objects.filter(created_time__gt=blog.created_time).last()
     # 当前博客的下一条博客
     context['next_blog'] = Blog.objects.filter(created_time__lt=blog.created_time).first()
+    # 获取用户 username
+    context['user'] = request.user
 
     read_cookie_key = read_statistics_once_read(request, blog)
 
+
+    response = render_to_response('blog/blog_detail.html', context={'blog': blog})
+    response.set_cookie(read_cookie_key, 'true') # 阅读 cookie 标记
+
+
+    # 使用 markdown
     blog.content = markdown.markdown(
         blog.content,
         extensions=[
@@ -80,8 +88,5 @@ def blog_detail(request, blog_pk):  # pk -> primary key
             'markdown.extensions.codehilite',
             'markdown.extensions.toc',
         ])
-
-    response = render_to_response('blog/blog_detail.html', context={'blog': blog})
-    response.set_cookie(read_cookie_key, 'true') # 阅读 cookie 标记
 
     return response
