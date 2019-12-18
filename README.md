@@ -2,8 +2,13 @@
 
 **Django2.0 + bootstrap3 响应式博客**
 
+## 博客页面
 
 ![](https://raw.githubusercontent.com/Byojiaoxianz7/Django_Blog/master/%E5%8D%9A%E5%AE%A2%E9%A1%B5%E9%9D%A2.jpg)
+
+## 文章页面
+
+![](https://raw.githubusercontent.com/Byojiaoxianz7/Django_Blog/master/%E6%96%87%E7%AB%A0%E9%A1%B5%E9%9D%A2.jpg)
 
 
 ## 2019年7月17日
